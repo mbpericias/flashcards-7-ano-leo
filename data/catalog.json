@@ -1,0 +1,23 @@
+{
+  "versao": 1,
+  "titulo": "Estudo de Ciências",
+  "ano_escolar": "7º ano",
+  "descricao": "Bancos oficiais de flashcards carregados automaticamente pelo aplicativo.",
+  "bancos": [
+    {
+      "id": "cie-vertebrados",
+      "titulo": "Reino Animal — Vertebrados",
+      "arquivo": "data/cie-vertebrados.json"
+    },
+    {
+      "id": "cie-sistematica",
+      "titulo": "Sistemática e Biodiversidade",
+      "arquivo": "data/cie-sistematica.json"
+    },
+    {
+      "id": "cie-reino-vegetal",
+      "titulo": "Reino Vegetal",
+      "arquivo": "data/cie-reino-vegetal.json"
+    }
+  ]
+}

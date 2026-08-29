@@ -1,0 +1,53 @@
+{
+  "banco": "cie-exemplo-extra",
+  "titulo": "Exemplo de importação",
+  "versao": 1,
+  "fonte": "Exemplo — material do responsável",
+  "cards": [
+    {
+      "id": "CIE-EXE-001",
+      "disciplina": "Ciências",
+      "assunto": "Reino Animal — Vertebrados",
+      "subassunto": "Peixes",
+      "ano_escolar": "7º ano",
+      "prioridade": 3,
+      "tipo": "pergunta_direta",
+      "pegadinha": false,
+      "pergunta": "Exemplo: qual estrutura ajuda muitos peixes a flutuar?",
+      "resposta": "A bexiga natatória.",
+      "explicacao": "Cartão de exemplo para testar a importação incremental. Substitua pelo seu conteúdo real.",
+      "fonte": "Exemplo — material do responsável"
+    },
+    {
+      "id": "CIE-EXE-002",
+      "disciplina": "Ciências",
+      "assunto": "Reino Vegetal",
+      "subassunto": "Gimnospermas",
+      "ano_escolar": "7º ano",
+      "prioridade": 2,
+      "tipo": "certo_errado",
+      "pegadinha": false,
+      "gabarito": true,
+      "pergunta": "Exemplo (certo ou errado): pinheiros são exemplos de gimnospermas.",
+      "resposta": "Certo.",
+      "explicacao": "Cartão de exemplo. Observe que ele cria automaticamente o novo subassunto \"Gimnospermas\".",
+      "fonte": "Exemplo — material do responsável"
+    },
+    {
+      "id": "CIE-EXE-003",
+      "disciplina": "Ciências",
+      "assunto": "Sistemática e Biodiversidade",
+      "subassunto": "Categorias taxonômicas",
+      "ano_escolar": "7º ano",
+      "prioridade": 3,
+      "tipo": "multipla_escolha",
+      "pegadinha": false,
+      "pergunta": "Exemplo: qual categoria vem logo antes de Espécie?",
+      "alternativas": ["Família", "Ordem", "Gênero", "Classe"],
+      "correta": "Gênero",
+      "resposta": "Gênero.",
+      "explicacao": "Cartão de exemplo de múltipla escolha para testar o Simulado.",
+      "fonte": "Exemplo — material do responsável"
+    }
+  ]
+}
