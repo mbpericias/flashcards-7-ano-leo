@@ -24,7 +24,7 @@ window.App = window.App || {};
     }
 
     App.content.init().then(function (meta) {
-      document.title = (meta.titulo || "Estudo de Ciências") + (meta.ano_escolar ? " · " + meta.ano_escolar : "");
+      document.title = (meta.titulo || "Estudo Escolar") + (meta.ano_escolar ? " · " + meta.ano_escolar : "");
       var root = document.getElementById("app");
       App.ui.mount(root);
       registrarServiceWorker();
