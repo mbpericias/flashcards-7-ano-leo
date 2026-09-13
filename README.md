@@ -1,13 +1,15 @@
-# Estudo de Ciências — 7º ano
+# Estudo Escolar — 7º ano
 
-Aplicativo web de **flashcards** para estudar Ciências, com **recuperação ativa**,
-**repetição espaçada**, sessões curtas, funcionamento **offline** e instalação como
-**app no celular** (PWA). Não precisa de internet depois da primeira abertura, não
-tem servidor, login, propaganda nem custo.
+Aplicativo web de **flashcards** para estudar (hoje, Ciências e História), com
+**recuperação ativa**, **repetição espaçada**, sessões curtas, funcionamento
+**offline** e instalação como **app no celular** (PWA). Não precisa de internet
+depois da primeira abertura, não tem servidor, login, propaganda nem custo.
 
 O aplicativo (o "motor") é **separado** do conteúdo. Os flashcards ficam em
-arquivos JSON dentro de `data/`. Para acrescentar matéria nova, basta criar um
-novo JSON e citá-lo no catálogo — sem mexer no código.
+arquivos JSON dentro de `data/`. Para acrescentar matéria nova — uma disciplina
+inteira, como aconteceu com História, ou só um assunto — basta criar um novo
+JSON e citá-lo no catálogo, sem mexer no código. A tela inicial já mostra
+"Ciências" e "História" lado a lado, montados sozinhos a partir dos cartões.
 
 ---
 
@@ -73,10 +75,11 @@ js/
   app.js                   Inicialização
   embedded-content.js      Cópia de reserva do conteúdo (gerada)
 data/
-  catalog.json             Lista dos bancos oficiais
-  cie-vertebrados.json     Banco: Reino Animal — Vertebrados
-  cie-sistematica.json     Banco: Sistemática e Biodiversidade
-  cie-reino-vegetal.json   Banco: Reino Vegetal
+  catalog.json                    Lista dos bancos oficiais
+  cie-vertebrados.json            Banco: Reino Animal — Vertebrados (Ciências)
+  cie-sistematica.json            Banco: Sistemática e Biodiversidade (Ciências)
+  cie-reino-vegetal.json          Banco: Reino Vegetal (Ciências)
+  his-colonizacao-america.json    Banco: Colonização da América (História)
 exemplos/
   exemplo-importacao.json  Exemplo para testar a importação
 tools/
@@ -199,15 +202,32 @@ Depois de abrir o app por um servidor (opção B ou C) **uma vez**:
 
 ## 8. Conteúdo escolar
 
-Os flashcards iniciais foram feitos **apenas com o que está no material fornecido**
-(dois mapas mentais de Ciências do 7º ano: "Reino Animal — Vertebrados" e
-"Sistemática / Vegetais: briófitas e pteridófitas"). O aplicativo é uma ferramenta
-de memorização e revisão — **não substitui** o professor, o livro didático nem a
-orientação escolar.
+Os flashcards foram feitos **apenas com o que está nos materiais fornecidos**.
+O aplicativo é uma ferramenta de memorização e revisão — **não substitui** o
+professor, o livro didático nem a orientação escolar.
 
-Trecho sinalizado para conferência do responsável:
-- **Répteis → pele:** o material manuscrito parece trazer um termo pouco legível
-  logo após "Pele seca, rica em ..." (possivelmente "queratina"). O cartão
-  `CIE-VER-REP-001` foi redigido **sem** esse termo, dizendo apenas "pele seca,
-  revestida por escamas ou placas córneas, o que evita a perda de água". Se
-  confirmar a palavra, edite o cartão em **Banco de questões**.
+- **Ciências (7º ano):** dois mapas mentais manuscritos — "Reino Animal —
+  Vertebrados" e "Sistemática / Vegetais: briófitas e pteridófitas".
+- **História (7º ano):** capítulo de livro didático sobre a colonização da
+  América — primeiros contatos, conquista dos impérios Asteca e Inca, Tratado
+  de Tordesilhas, ocupações francesas e holandesas, pau-brasil, feitorias e
+  tipos de colonização.
+
+Trechos sinalizados para conferência do responsável (não foram usados para não
+arriscar inventar conteúdo):
+- **Ciências → Répteis → pele:** o material manuscrito parece trazer um termo
+  pouco legível logo após "Pele seca, rica em ..." (possivelmente "queratina").
+  O cartão `CIE-VER-REP-001` foi redigido **sem** esse termo, dizendo apenas
+  "pele seca, revestida por escamas ou placas córneas, o que evita a perda de
+  água". Se confirmar a palavra, edite o cartão em **Banco de questões**.
+- **História → Região Andina (conquista inca):** o livro traz a frase "Atahualpa
+  foi preso pelos espanhóis, enquanto Huáscar foi vencido pelo exército aliado
+  de Atahualpa, culminando com o desaparecimento do primeiro e o julgamento
+  espanhol e a sentença de morte do segundo." A quem exatamente "o primeiro" e
+  "o segundo" se referem fica ambíguo no próprio texto (e parece divergir do
+  desfecho mais conhecido dessa história, em que foi Atahualpa quem os
+  espanhóis capturaram, julgaram e executaram). Por isso, nenhum cartão afirma
+  quem foi condenado à morte — os cartões `HIS-COL-AND-*` usam apenas os fatos
+  não ambíguos do texto (a aliança de Pizarro com Huáscar, a prisão de
+  Atahualpa pelos espanhóis, a coroação de Manco Cápac II depois da morte dos
+  dois irmãos). Vale a pena reler essa passagem com o professor.

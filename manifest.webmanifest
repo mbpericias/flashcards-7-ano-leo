@@ -1,7 +1,7 @@
 {
-  "name": "Estudo de Ciências — 7º ano",
-  "short_name": "Ciências 7º",
-  "description": "Flashcards de Ciências com recuperação ativa e repetição espaçada. Funciona offline.",
+  "name": "Estudo Escolar — 7º ano",
+  "short_name": "Estudo 7º",
+  "description": "Flashcards escolares (Ciências, História e mais) com recuperação ativa e repetição espaçada. Funciona offline.",
   "lang": "pt-BR",
   "start_url": ".",
   "scope": ".",

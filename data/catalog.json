@@ -1,6 +1,6 @@
 {
-  "versao": 1,
-  "titulo": "Estudo de Ciências",
+  "versao": 2,
+  "titulo": "Estudo Escolar",
   "ano_escolar": "7º ano",
   "descricao": "Bancos oficiais de flashcards carregados automaticamente pelo aplicativo.",
   "bancos": [
@@ -18,6 +18,11 @@
       "id": "cie-reino-vegetal",
       "titulo": "Reino Vegetal",
       "arquivo": "data/cie-reino-vegetal.json"
+    },
+    {
+      "id": "his-colonizacao-america",
+      "titulo": "Colonização da América",
+      "arquivo": "data/his-colonizacao-america.json"
     }
   ]
 }

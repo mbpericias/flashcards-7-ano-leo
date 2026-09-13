@@ -142,6 +142,23 @@ App.ui = (function () {
 
   function enc(s) { return encodeURIComponent(s); }
 
+  // Ícone decorativo por disciplina. Puramente visual: uma disciplina nova que
+  // não estiver nesta lista simplesmente usa o ícone padrão — não é preciso
+  // alterar o motor para isso funcionar.
+  var ICONES_DISCIPLINA = {
+    "ciências": "🔬", "ciencias": "🔬",
+    "história": "🏛️", "historia": "🏛️",
+    "geografia": "🌎",
+    "matemática": "➗", "matematica": "➗",
+    "português": "📖", "portugues": "📖", "língua portuguesa": "📖",
+    "inglês": "🗣️", "ingles": "🗣️",
+    "artes": "🎨", "educação física": "🤸", "educacao fisica": "🤸",
+    "filosofia": "🦉", "sociologia": "🧭"
+  };
+  function iconeDisciplina(nome) {
+    return ICONES_DISCIPLINA[util.normalize(nome)] || "📘";
+  }
+
   // ==================================================================
   // Navegação
   // ==================================================================
@@ -214,7 +231,7 @@ App.ui = (function () {
     var hoje = state.statsHoje();
 
     VIEW.appendChild(h("header", { class: "capa" }, [
-      h("h1", {}, (meta.titulo || "Estudo de Ciências").toUpperCase()),
+      h("h1", {}, (meta.titulo || "Estudo Escolar").toUpperCase()),
       h("p", { class: "sub" }, meta.ano_escolar || "")
     ]));
 
@@ -242,7 +259,7 @@ App.ui = (function () {
       var ids = content.idsDe(d, null, null);
       var s = state.contarSituacoes(ids);
       grade.appendChild(h("a", { class: "bloco-disc", href: "#/d/" + enc(d) }, [
-        h("span", { class: "bd-ico" }, "🔬"),
+        h("span", { class: "bd-ico" }, iconeDisciplina(d)),
         h("span", { class: "bd-nome" }, d),
         h("span", { class: "bd-info" }, ids.length + " cartões · " + s.revisar + " p/ revisar · " + s.novos + " novos · " + s.pctDominio + "% dominado")
       ]));
@@ -781,7 +798,7 @@ App.ui = (function () {
       h("p", { class: "suave" }, "O aplicativo só adiciona cartões com id novo. Nada é apagado e nenhum cartão existente é substituído sem a sua confirmação.")
     ]));
 
-    var ta = h("textarea", { class: "json-input", rows: 10, placeholder: '[\n  { "id": "CIE-XXX-001", "disciplina": "Ciências", "assunto": "...", "subassunto": "...", "pergunta": "...", "resposta": "..." }\n]' });
+    var ta = h("textarea", { class: "json-input", rows: 10, placeholder: '[\n  { "id": "XXX-001", "disciplina": "...", "assunto": "...", "subassunto": "...", "pergunta": "...", "resposta": "..." }\n]' });
     var file = h("input", { type: "file", accept: ".json,application/json", onchange: function () {
       var f = this.files && this.files[0];
       if (!f) return;
@@ -1254,7 +1271,7 @@ App.ui = (function () {
   // ==================================================================
   function mount(rootEl) {
     var barra = h("div", { id: "barra-topo" }, [
-      h("a", { class: "bt-titulo", href: "#/" }, "Estudo de Ciências"),
+      h("a", { class: "bt-titulo", href: "#/" }, content.meta().titulo || "Estudo Escolar"),
       h("a", { class: "bt-resp", href: "#/responsavel" }, "Responsável")
     ]);
     document.body.insertBefore(barra, document.body.firstChild);
