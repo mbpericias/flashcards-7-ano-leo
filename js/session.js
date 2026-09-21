@@ -6,7 +6,8 @@ App.session = (function () {
   "use strict";
   var util = App.util, srs = App.srs, content = App.content, state = App.state;
 
-  // Modos de sessão disponíveis (rótulos amigáveis).
+  // Modos de sessão disponíveis dentro da "revisão programada" (rótulos amigáveis).
+  // Todos filtram os cartões pelo algoritmo de repetição espaçada (srs.js), que não é alterado aqui.
   var MODOS = [
     { id: "revisao", rotulo: "Revisão inteligente", dica: "Mistura cartões para revisar hoje com alguns novos." },
     { id: "novos", rotulo: "Cartões novos", dica: "Só cartões que você ainda não estudou." },
@@ -16,6 +17,12 @@ App.session = (function () {
     { id: "comparacao", rotulo: "Comparação entre grupos", dica: "Cartões que comparam grupos e características." },
     { id: "favoritos", rotulo: "Favoritos", dica: "Cartões que você marcou com estrela." }
   ];
+
+  // Estudo livre: modo à parte, fora da "revisão programada". Ignora completamente a data de
+  // revisão, o nível de domínio e os acertos/erros anteriores — mostra TODOS os cartões do
+  // filtro escolhido (disciplina/assunto/subassunto), embaralhados. As respostas continuam
+  // alimentando o histórico e o algoritmo de repetição espaçada normalmente.
+  var MODO_LIVRE = { id: "todos", rotulo: "Estudo livre", dica: "Todos os cartões deste filtro, sem depender da revisão programada." };
 
   var atual = null;
 
@@ -40,6 +47,10 @@ App.session = (function () {
 
     switch (modo) {
       case "lista":
+        return pool.slice();
+      case "todos":
+        // Estudo livre: nenhum filtro de repetição espaçada. Pega literalmente todos os
+        // cartões do escopo (disciplina/assunto/subassunto), estudados ou não, vencidos ou não.
         return pool.slice();
       case "novos":
         return pool.filter(function (c) { return srs.eNovo(p(c)); })
@@ -115,6 +126,7 @@ App.session = (function () {
   }
 
   function rotuloModo(id) {
+    if (id === MODO_LIVRE.id) return MODO_LIVRE.rotulo;
     for (var i = 0; i < MODOS.length; i++) if (MODOS[i].id === id) return MODOS[i].rotulo;
     return "Estudo";
   }
@@ -215,7 +227,7 @@ App.session = (function () {
   }
 
   return {
-    MODOS: MODOS,
+    MODOS: MODOS, MODO_LIVRE: MODO_LIVRE,
     contar: contar, construir: construir, construirLista: construirLista,
     ativa: ativa, resumo: resumo, cartaoAtual: cartaoAtual, progressoInfo: progressoInfo,
     responder: responder, pular: pular, abortar: abortar, rotuloModo: rotuloModo

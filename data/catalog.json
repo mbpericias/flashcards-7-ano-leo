@@ -1,5 +1,5 @@
 {
-  "versao": 2,
+  "versao": 3,
   "titulo": "Estudo Escolar",
   "ano_escolar": "7º ano",
   "descricao": "Bancos oficiais de flashcards carregados automaticamente pelo aplicativo.",
@@ -23,6 +23,11 @@
       "id": "his-colonizacao-america",
       "titulo": "Colonização da América",
       "arquivo": "data/his-colonizacao-america.json"
+    },
+    {
+      "id": "geo-setores-economicos-brasil",
+      "titulo": "Setores econômicos do Brasil",
+      "arquivo": "data/geo-setores-economicos-brasil.json"
     }
   ]
 }

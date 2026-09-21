@@ -142,6 +142,40 @@ App.ui = (function () {
 
   function enc(s) { return encodeURIComponent(s); }
 
+  // Monta o hash da tela de preparar sessão a partir de um escopo (disciplina/assunto/
+  // subassunto) e parâmetros extras (modo, título...).
+  function hashSessao(escopo, params) {
+    escopo = escopo || {};
+    var partes = [];
+    if (escopo.disciplina) partes.push("d=" + enc(escopo.disciplina));
+    if (escopo.assunto) partes.push("a=" + enc(escopo.assunto));
+    if (escopo.subassunto) partes.push("s=" + enc(escopo.subassunto));
+    Object.keys(params || {}).forEach(function (k) {
+      if (params[k] != null) partes.push(k + "=" + enc(String(params[k])));
+    });
+    return "#/sessao?" + partes.join("&");
+  }
+
+  function txtCartoes(n) { return n + (n === 1 ? " cartão" : " cartões"); }
+
+  // Par de botões "Revisão do dia" (revisão programada) / "Estudar todos agora" (estudo
+  // livre), com a contagem de cada um já visível. Usado na tela inicial, na disciplina e no
+  // assunto. "Revisão do dia" só fica desabilitado se não houver NENHUM cartão no escopo —
+  // se a revisão programada estiver zerada mas houver cartões, o botão continua levando à
+  // tela de preparar sessão, que oferece "Estudar todos mesmo assim".
+  function botoesModoEstudo(escopo, titulo) {
+    var nDia = session.contar({ modo: "revisao", escopo: escopo });
+    var nTudo = session.contar({ modo: session.MODO_LIVRE.id, escopo: escopo });
+    return h("div", { class: "col botoes-modo-estudo" }, [
+      botao("Revisão do dia: " + txtCartoes(nDia), function () {
+        ir(hashSessao(escopo, { modo: "revisao", titulo: titulo }));
+      }, { classe: "btn-primario", bloco: true, disabled: nDia === 0 && nTudo === 0 }),
+      botao("Estudar todos agora: " + txtCartoes(nTudo), function () {
+        ir(hashSessao(escopo, { modo: session.MODO_LIVRE.id, titulo: titulo }));
+      }, { classe: "btn-suave", bloco: true, disabled: nTudo === 0 })
+    ]);
+  }
+
   // Ícone decorativo por disciplina. Puramente visual: uma disciplina nova que
   // não estiver nesta lista simplesmente usa o ícone padrão — não é preciso
   // alterar o motor para isso funcionar.
@@ -245,9 +279,7 @@ App.ui = (function () {
 
     VIEW.appendChild(h("p", { class: "frase" }, md.atingida ? frase("metaAtingida") : frase("inicio")));
 
-    VIEW.appendChild(botao("Começar revisão de hoje", function () {
-      ir("#/sessao?modo=revisao&titulo=" + enc("Revisão de hoje"));
-    }, { classe: "btn-primario", bloco: true }));
+    VIEW.appendChild(botoesModoEstudo({}, "Revisão de hoje"));
 
     VIEW.appendChild(h("h2", { class: "secao-tit" }, "ESCOLHA UMA DISCIPLINA"));
     var discs = content.disciplinas();
@@ -303,6 +335,8 @@ App.ui = (function () {
       tile("🟢", s.dominados, "dominados")
     ]));
 
+    VIEW.appendChild(botoesModoEstudo({ disciplina: disc }, disc));
+
     VIEW.appendChild(h("h2", { class: "secao-tit" }, "ASSUNTOS"));
     var lista = h("div", { class: "col" });
     content.assuntos(disc).forEach(function (a) { lista.appendChild(blocoAssunto(disc, a)); });
@@ -329,7 +363,7 @@ App.ui = (function () {
 
     var base = "#/sessao?d=" + enc(disc) + "&a=" + enc(assunto);
     VIEW.appendChild(h("div", { class: "acoes-assunto" }, [
-      botao("ESTUDAR TODO O ASSUNTO", function () { ir(base + "&modo=revisao&titulo=" + enc(assunto)); }, { classe: "btn-primario", bloco: true }),
+      botoesModoEstudo({ disciplina: disc, assunto: assunto }, assunto),
       h("div", { class: "acoes-linha" }, [
         botao("Revisar erros", function () { ir(base + "&modo=erros&titulo=" + enc("Erros · " + assunto)); }, { classe: "btn-suave", disabled: !s.errosRecentes }),
         botao("Revisar difíceis", function () { ir(base + "&modo=dificeis&titulo=" + enc("Difíceis · " + assunto)); }, { classe: "btn-suave", disabled: !s.dificeis }),
@@ -366,19 +400,52 @@ App.ui = (function () {
   // ==================================================================
   // TELA: configuração da sessão
   // ==================================================================
+  // Ponto de entrada (chamado pelo roteador a cada navegação nova): define o estado inicial
+  // da tela a partir da URL e desenha. Depois disso, cliques dentro da tela chamam
+  // renderConfigSessao() diretamente, preservando esse estado (sem reler a URL de novo —
+  // por isso trocar de modo ou quantidade não "volta atrás" sozinho).
   function telaConfigSessao(q) {
     var cfg = state.getConfig();
+    var livreInicial = q.modo === session.MODO_LIVRE.id;
     vista.sessao = {
-      modo: q.modo || "revisao",
-      quantidade: vista.sessao && vista.sessao.quantidade ? vista.sessao.quantidade : cfg.tamanhoSessaoPadrao,
+      livre: livreInicial,
+      modoProgramado: (q.modo && !livreInicial) ? q.modo : "revisao",
+      quantidade: livreInicial ? "todos" : cfg.tamanhoSessaoPadrao,
       d: q.d || "", a: q.a || "", s: q.s || "",
       titulo: q.titulo || ""
     };
+    renderConfigSessao();
+  }
+
+  function renderConfigSessao() {
+    util.clear(VIEW);
     var sc = vista.sessao;
+    var escopoAtual = { disciplina: sc.d || null, assunto: sc.a || null, subassunto: sc.s || null };
+    var modoEfetivo = sc.livre ? session.MODO_LIVRE.id : sc.modoProgramado;
 
     VIEW.appendChild(voltar(sc.a ? "#/a/" + enc(sc.d) + "/" + enc(sc.a) : "#/"));
     VIEW.appendChild(h("h1", { class: "tit" }, "Preparar sessão"));
     if (sc.d) VIEW.appendChild(h("p", { class: "trilha" }, [sc.d, sc.a && " › " + sc.a, sc.s && " › " + sc.s].filter(Boolean).join("")));
+
+    // Modo de estudo: revisão programada (repetição espaçada) x estudo livre (todos os cartões)
+    VIEW.appendChild(h("h2", { class: "secao-tit" }, "MODO DE ESTUDO"));
+    var totalRevisao = session.contar({ modo: "revisao", escopo: escopoAtual });
+    var totalLivre = session.contar({ modo: session.MODO_LIVRE.id, escopo: escopoAtual });
+    var modoWrap0 = h("div", { class: "segmentos segmentos-modo" }, [
+      h("button", {
+        type: "button", class: "seg" + (!sc.livre ? " ativo" : ""),
+        onclick: function () { sc.livre = false; renderConfigSessao(); }
+      }, "Revisão programada"),
+      h("button", {
+        type: "button", class: "seg" + (sc.livre ? " ativo" : ""),
+        onclick: function () { sc.livre = true; renderConfigSessao(); }
+      }, "Estudo livre")
+    ]);
+    VIEW.appendChild(modoWrap0);
+    VIEW.appendChild(h("p", { class: "suave modo-dica" },
+      sc.livre
+        ? "Mostra todos os cartões do filtro escolhido, embaralhados — mesmo os que ainda não estão programados para revisão."
+        : "Mostra os cartões que o sistema de repetição espaçada selecionou para hoje: vencidos, errados, difíceis ou novos."));
 
     // Quantidade
     VIEW.appendChild(h("h2", { class: "secao-tit" }, "QUANTOS CARTÕES?"));
@@ -387,57 +454,62 @@ App.ui = (function () {
       var b = h("button", {
         type: "button",
         class: "seg" + (String(sc.quantidade) === opt ? " ativo" : ""),
-        onclick: function () { sc.quantidade = opt === "todos" ? "todos" : parseInt(opt, 10); telaConfigSessaoRedesenhar(); }
+        onclick: function () { sc.quantidade = opt === "todos" ? "todos" : parseInt(opt, 10); renderConfigSessao(); }
       }, opt === "todos" ? "Todos" : opt);
       qtdWrap.appendChild(b);
     });
     VIEW.appendChild(qtdWrap);
 
-    // Modo
-    VIEW.appendChild(h("h2", { class: "secao-tit" }, "O QUE VOCÊ QUER PRATICAR?"));
-    var modoWrap = h("div", { class: "col" });
-    session.MODOS.forEach(function (m) {
-      var escopo = { disciplina: sc.d || null, assunto: sc.a || null, subassunto: sc.s || null };
-      var disp = session.contar({ modo: m.id, escopo: escopo });
-      var linha = h("label", { class: "opcao" + (sc.modo === m.id ? " ativo" : "") + (disp === 0 ? " vazio" : "") }, [
-        h("input", {
-          type: "radio", name: "modo", value: m.id, checked: sc.modo === m.id,
-          onchange: function () { sc.modo = m.id; telaConfigSessaoRedesenhar(); }
-        }),
-        h("span", { class: "op-txt" }, [
-          h("strong", {}, m.rotulo),
-          h("small", {}, m.dica),
-          h("small", { class: "op-disp" }, disp + (disp === 1 ? " disponível" : " disponíveis"))
-        ])
-      ]);
-      modoWrap.appendChild(linha);
-    });
-    VIEW.appendChild(modoWrap);
+    // Sub-modo (só faz sentido dentro da revisão programada)
+    if (!sc.livre) {
+      VIEW.appendChild(h("h2", { class: "secao-tit" }, "O QUE VOCÊ QUER PRATICAR?"));
+      var modoWrap = h("div", { class: "col" });
+      session.MODOS.forEach(function (m) {
+        var disp = session.contar({ modo: m.id, escopo: escopoAtual });
+        var linha = h("label", { class: "opcao" + (sc.modoProgramado === m.id ? " ativo" : "") + (disp === 0 ? " vazio" : "") }, [
+          h("input", {
+            type: "radio", name: "modo", value: m.id, checked: sc.modoProgramado === m.id,
+            onchange: function () { sc.modoProgramado = m.id; renderConfigSessao(); }
+          }),
+          h("span", { class: "op-txt" }, [
+            h("strong", {}, m.rotulo),
+            h("small", {}, m.dica),
+            h("small", { class: "op-disp" }, disp + (disp === 1 ? " disponível" : " disponíveis"))
+          ])
+        ]);
+        modoWrap.appendChild(linha);
+      });
+      VIEW.appendChild(modoWrap);
+    }
 
-    var escopoAtual = { disciplina: sc.d || null, assunto: sc.a || null, subassunto: sc.s || null };
-    var total = session.contar({ modo: sc.modo, escopo: escopoAtual });
+    var total = session.contar({ modo: modoEfetivo, escopo: escopoAtual });
     var qtdFinal = sc.quantidade === "todos" ? total : Math.min(total, sc.quantidade);
 
-    VIEW.appendChild(h("p", { class: "resumo-sessao" },
-      total === 0 ? "Nenhum cartão para este modo agora. Que tal escolher outro assunto ou outro modo?"
-                  : ("Você vai praticar " + qtdFinal + (qtdFinal === 1 ? " cartão." : " cartões."))));
-
-    VIEW.appendChild(botao("COMEÇAR", function () {
+    function iniciar(modo, quantidade) {
       session.construir({
-        modo: sc.modo,
-        quantidade: sc.quantidade,
+        modo: modo,
+        quantidade: quantidade,
         escopo: escopoAtual,
-        titulo: sc.titulo || session.rotuloModo(sc.modo)
+        titulo: sc.titulo || session.rotuloModo(modo)
       });
       vista.fimSessao = null;
-      ir("#/rodar");
-    }, { classe: "btn-primario", bloco: true, disabled: total === 0 }));
-  }
+      abrirRodar();
+    }
 
-  function telaConfigSessaoRedesenhar() {
-    var q = parseHash().query;
-    util.clear(VIEW);
-    telaConfigSessao(q);
+    if (total === 0 && !sc.livre && totalLivre > 0) {
+      // Não há nada programado para agora, mas existem cartões no filtro: oferece o atalho.
+      VIEW.appendChild(h("p", { class: "resumo-sessao" }, "Você concluiu as revisões programadas deste conteúdo."));
+      VIEW.appendChild(botao("Estudar todos mesmo assim: " + txtCartoes(totalLivre), function () {
+        iniciar(session.MODO_LIVRE.id, "todos");
+      }, { classe: "btn-primario", bloco: true }));
+    } else {
+      VIEW.appendChild(h("p", { class: "resumo-sessao" },
+        total === 0 ? "Nenhum cartão neste filtro. Que tal escolher outro assunto?"
+                    : ("Você vai praticar " + txtCartoes(qtdFinal) + ".")));
+      VIEW.appendChild(botao("COMEÇAR", function () {
+        iniciar(modoEfetivo, sc.quantidade);
+      }, { classe: "btn-primario", bloco: true, disabled: total === 0 }));
+    }
   }
 
   // ==================================================================
