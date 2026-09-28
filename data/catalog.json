@@ -20,6 +20,11 @@
       "arquivo": "data/cie-reino-vegetal.json"
     },
     {
+      "id": "cie-biomas",
+      "titulo": "Biomas",
+      "arquivo": "data/cie-biomas.json"
+    },
+    {
       "id": "his-colonizacao-america",
       "titulo": "Colonização da América",
       "arquivo": "data/his-colonizacao-america.json"
