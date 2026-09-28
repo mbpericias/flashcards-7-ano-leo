@@ -79,6 +79,7 @@ data/
   cie-vertebrados.json            Banco: Reino Animal — Vertebrados (Ciências)
   cie-sistematica.json            Banco: Sistemática e Biodiversidade (Ciências)
   cie-reino-vegetal.json          Banco: Reino Vegetal (Ciências)
+  cie-biomas.json                 Banco: Biomas e Biomas brasileiros (Ciências)
   his-colonizacao-america.json    Banco: Colonização da América (História)
 exemplos/
   exemplo-importacao.json  Exemplo para testar a importação
